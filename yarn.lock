@@ -11,17 +11,10 @@
     ajv-formats "^2.1.1"
     fast-uri "^2.0.0"
 
-<<<<<<< HEAD
-"@fastify/autoload@^5.4.0":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@fastify/autoload/-/autoload-5.4.0.tgz#3d09c804382e2093a40b52ae77f48db62e5ac3c7"
-  integrity sha512-aUct8AERleLb6ZVqIFW3qdwJA2/ILVDTQyCr0qD909RMP4axcmIhJmV9iDAzDqpUDipZ29I+Hp43+PiJsk3oWw==
-=======
 "@fastify/autoload@^5.4.1":
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/@fastify/autoload/-/autoload-5.4.1.tgz#79323e54eabc0fd1e1a155c56094598d250c45b6"
   integrity sha512-BiNyQ7FnM5zlVDC4JhbxKsMa9QxxUMgoMFrZ86l8m3HpHX3cvNWDdwMWmA32TDJJkzWnKoZE6HHBFPb0+Fu1Rw==
->>>>>>> develop
   dependencies:
     pkg-up "^3.1.0"
 
@@ -74,21 +67,6 @@
   integrity sha512-e+f8U8vwYXV5aXPLvEegGIFitRJi2Peqop10u7Qo5Eoc6jl/ovgK7RU2RA8jyZdCkgX4X8xx5zgaQM85eDoQlg==
   dependencies:
     fastify-plugin "^4.0.0"
-<<<<<<< HEAD
-    glob "^8.0.1"
-    p-limit "^3.1.0"
-    readable-stream "^4.0.0"
-    send "^0.18.0"
-
-"@fastify/swagger@^7.6.1":
-  version "7.6.1"
-  resolved "https://registry.yarnpkg.com/@fastify/swagger/-/swagger-7.6.1.tgz#5b8a790378cc13c040975e0f300d710a20317132"
-  integrity sha512-fpwblS7aOfnVymdRyKI3Zw/ZNt2u0oGm7KQgQ/itmd4Hlh/LKNNoWg6R/+eLa9H/4JTd34ZRRC3mNKhkVl5Kdw==
-  dependencies:
-    "@fastify/static" "^6.0.0"
-    fastify-plugin "^4.0.0"
-=======
->>>>>>> develop
     json-schema-resolver "^2.0.0"
     openapi-types "^12.0.0"
     rfdc "^1.3.0"
@@ -185,16 +163,6 @@ bn.js@^4.0.0:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
   integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
 
-<<<<<<< HEAD
-brace-expansion@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-2.0.1.tgz#1edc459e0f0c548486ecf9fc99f2221364b9a0ae"
-  integrity sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==
-  dependencies:
-    balanced-match "^1.0.0"
-
-=======
->>>>>>> develop
 bson@^4.6.5, bson@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/bson/-/bson-4.7.0.tgz#7874a60091ffc7a45c5dd2973b5cad7cded9718a"
@@ -222,14 +190,6 @@ debug@4.x, debug@^4.0.0, debug@^4.1.1:
   dependencies:
     ms "2.1.2"
 
-<<<<<<< HEAD
-deepmerge@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-4.2.2.tgz#44d2ea3679b8f4d4ffba33f03d865fc1e7bf4955"
-  integrity sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==
-
-=======
->>>>>>> develop
 denque@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/denque/-/denque-2.1.0.tgz#e93e1a6569fb5e66f16a3c2a2964617d349d6ab1"
@@ -312,17 +272,10 @@ fastify-plugin@^4.0.0:
   resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-4.2.1.tgz#4b80020957938dbc44b8ad4a898fd8bcfbab3f65"
   integrity sha512-dlGKiwLzRBKkEf5J5ho0uAD/Jdv8GQVUbriB3tAX3ehRUXE4gTV3lRd5inEg9li1aLzb0EGj8y2K4/8g1TN06g==
 
-<<<<<<< HEAD
-fastify@^4.6.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/fastify/-/fastify-4.6.0.tgz#47524173eb4013a1f98fb718ba1263f67a02a39a"
-  integrity sha512-EgWUvcJNvsql1R4g5/ce866BYk8SgJKjGh6AI0e9BR+NidP7hqX1ObiwHEVbkR15A9XwMtkKd3TE/tFZCjsqnA==
-=======
 fastify@^4.9.1:
   version "4.9.1"
   resolved "https://registry.yarnpkg.com/fastify/-/fastify-4.9.1.tgz#84765b865666fc7c04891e848fc005dcc0884d22"
   integrity sha512-n5e3TSO8Wzc8kw8bZoF+ydTbbU9pq0eXNciEAqewa7kwHZQM4o9lRcgZeh7R9IhDSiOuII2kT8Q00y6Cnj7HPg==
->>>>>>> develop
   dependencies:
     "@fastify/ajv-compiler" "^3.3.1"
     "@fastify/error" "^3.0.0"
@@ -491,15 +444,9 @@ mnemonist@0.39.2, mnemonist@^0.39.0:
     obliterator "^2.0.1"
 
 mongodb-connection-string-url@^2.5.3:
-<<<<<<< HEAD
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/mongodb-connection-string-url/-/mongodb-connection-string-url-2.5.3.tgz#c0c572b71570e58be2bd52b33dffd1330cfb6990"
-  integrity sha512-f+/WsED+xF4B74l3k9V/XkTVj5/fxFH2o5ToKXd8Iyi5UhM+sO9u0Ape17Mvl/GkZaFtM0HQnzAG5OTmhKw+tQ==
-=======
   version "2.5.4"
   resolved "https://registry.yarnpkg.com/mongodb-connection-string-url/-/mongodb-connection-string-url-2.5.4.tgz#1ee2496f4c4eae64f63c4b2d512aebc89996160a"
   integrity sha512-SeAxuWs0ez3iI3vvmLk/j2y+zHwigTDKQhtdxTgt5ZCOQQS5+HW4g45/Xw5vzzbn7oQXCNQ24Z40AkJsizEy7w==
->>>>>>> develop
   dependencies:
     "@types/whatwg-url" "^8.2.1"
     whatwg-url "^11.0.0"
@@ -525,17 +472,10 @@ mongoose-unique-validator@^3.1.0:
     lodash.get "^4.0.2"
     lodash.merge "^4.6.2"
 
-<<<<<<< HEAD
-mongoose@^6.6.2:
-  version "6.6.2"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.6.2.tgz#162d651ee830f06c6fd2c8a5886646a5828c0458"
-  integrity sha512-SrB0DgB1Ime/xh4Tr2yLkFKO5Aa/FrDyAo/ILGDWM5qjhZdhl7HKftiQPibwywC3rTkeU4nc2yuPYKFLBYCBWA==
-=======
 mongoose@^6.6.5:
   version "6.6.5"
   resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.6.5.tgz#fcc7ba9594db711b3d4d7a1b3522c5dbc8f0bf52"
   integrity sha512-iA/oDpWOc+K2QYzA4Eq7Z1oUBQOz9FGDmUwPLgw872Bfs/qizA5Db+gJorAn+TnnGu3VoCK8iP4Y+TECUelwjA==
->>>>>>> develop
   dependencies:
     bson "^4.6.5"
     kareem "2.4.1"
@@ -768,15 +708,9 @@ smart-buffer@^4.2.0:
   integrity sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==
 
 socks@^2.7.0:
-<<<<<<< HEAD
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/socks/-/socks-2.7.0.tgz#f9225acdb841e874dca25f870e9130990f3913d0"
-  integrity sha512-scnOe9y4VuiNUULJN72GrM26BNOjVsfPXI+j+98PkyEfsIXroa5ofyjT+FzGvn/xHs73U2JtoBYAVx9Hl4quSA==
-=======
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/socks/-/socks-2.7.1.tgz#d8e651247178fde79c0663043e07240196857d55"
   integrity sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==
->>>>>>> develop
   dependencies:
     ip "^2.0.0"
     smart-buffer "^4.2.0"

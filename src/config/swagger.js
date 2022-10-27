@@ -7,39 +7,14 @@ exports.options = {
   swagger: {
     info: {
       title: Package.name,
-      description: `${Package.description} </br>
-          <b>In most cases a success response will be in the following structure</b>
-          <pre><code>
-            {
-              "response": {
-                &nbsp;&nbsp;"statusCode": 200,
-                &nbsp;&nbsp;"message": "Success",
-                &nbsp;&nbsp;"error": false,
-                &nbsp;&nbsp;"version": "x.x.x"
-              },
-              "data": []
-          </code></pre>`,
+      description: `${Package.description} </br>`,
       version: Package.version
     },
     host:
-      process.env.SWAGGER_DOMAIN || `${process.env.HOST}:${process.env.PORT}`,
-    basePath: '/api',
+      process.env.SWAGGER_DOMAIN ||
+      `${process.env.HOST || process.env.SWAGGER_IP}:${process.env.PORT}`,
     schemes: ['http', 'https'],
     consumes: ['application/json'],
-    produces: ['application/json'],
-    securityDefinitions: {
-      Bearer: {
-        type: 'apiKey',
-        in: 'header',
-        scheme: 'bearer',
-        name: 'Authorization',
-        bearerFormat: 'JWT'
-      },
-      cookieAuth: {
-        type: 'apiKey',
-        in: 'cookie',
-        name: 'token'
-      }
-    }
+    produces: ['application/json']
   }
 }
