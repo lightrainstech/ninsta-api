@@ -6,8 +6,6 @@ exports.otpSchema = {
   body: S.object()
     .prop('name', S.string().minLength(4).maxLength(40).required())
     .prop('email', S.string().format(S.FORMATS.EMAIL))
-    .prop('phone', S.string().required())
-    .prop('country', S.string().required())
 }
 
 exports.otpResendSchema = {

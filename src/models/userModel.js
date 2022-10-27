@@ -11,15 +11,15 @@ const UserSchema = new mongoose.Schema(
       unique: true
     },
     name: { type: String, default: '--' },
-    phone: { type: String, unique: true, default: '--' },
-    country: { type: String, default: '--' },
     otp: {
       type: Number,
       required: true,
       default: 0
     },
-    isVerified: { type: Boolean, default: false },
-    isKycDone: { type: Boolean, default: false }
+    isVerified: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true
@@ -91,13 +91,7 @@ UserSchema.statics = {
   }
 }
 
-UserSchema.index(
-  {
-    phone: 1,
-    country: 1
-  },
-  { unique: true }
-)
+UserSchema.index({ email: 1 })
 
 UserSchema.plugin(uniqueValidator)
 
