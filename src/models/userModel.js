@@ -72,7 +72,7 @@ UserSchema.methods = {
 
 UserSchema.statics = {
   load: function (options, cb) {
-    options.select = options.select || 'email name'
+    options.select = options.select || 'email name isVerified'
     return this.findOne(options.criteria).select(options.select).exec(cb)
   },
 
