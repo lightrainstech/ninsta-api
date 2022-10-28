@@ -47,28 +47,35 @@ module.exports = async function (fastify, opts) {
       }
     }
   ),
-    fastify.post('/upload', async (req, reply) => {
-      try {
-        const data = await req.file()
+    fastify.post(
+      '/upload',
+      { schema: assetPayload.uploadSchema },
+      async (req, reply) => {
+        try {
+          const data = await req.file()
 
-        const fileName = `${Number(new Date())}-${data.filename}`
-        await pump(data.file, fs.createWriteStream(`../public/${fileName}`))
+          const fileName = `${Number(new Date())}-${data.filename}`
+          await pump(data.file, fs.createWriteStream(`../public/${fileName}`))
 
-        if (data.file.truncated) {
-          fs.rmSync(`../public/${fileName}`)
+          if (data.file.truncated) {
+            fs.rmSync(`../public/${fileName}`)
+            reply.error({
+              message: 'Unable to upload file, please retry!'
+            })
+          } else {
+            reply.success({
+              fileName,
+              mimeType: data.mimetype
+            })
+          }
+        } catch (error) {
           reply.error({
-            message: 'Unable to upload file, please retry!'
-          })
-        } else {
-          reply.success({
-            fileName,
-            mimeType: data.mimetype
+            message: 'Unable to upload file, please retry!',
+            error
           })
         }
-      } catch (error) {
-        reply.error({ message: 'Unable to upload file, please retry!', error })
       }
-    })
+    )
 }
 
 module.exports.autoPrefix = '/assets'

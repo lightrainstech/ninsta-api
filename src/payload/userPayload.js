@@ -22,7 +22,9 @@ exports.otpVerifySchema = {
   body: S.object()
     .prop('phone', S.string().required())
     .prop('country', S.string().required())
-    .prop('otp', S.string().required())
+    .prop('otp', S.string().required()),
+  security: [{ Bearer: [] }]
+
   // TODO change this when move to production
   // .prop('otp', S.string().minLength(4).maxLength(4).required())
 }

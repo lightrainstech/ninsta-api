@@ -10,7 +10,7 @@
     "@fastify/etag": "^4.1.0",
     "@fastify/jwt": "^6.3.2",
     "@fastify/multipart": "^7.3.0",
-    "@fastify/swagger": "^8.0.0",
+    "@fastify/swagger": "^7.5.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.9.2",
     "fastify-file-upload": "^4.0.0",
