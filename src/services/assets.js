@@ -52,10 +52,10 @@ module.exports = async function (fastify, opts) {
         const data = await req.file()
 
         const fileName = `${Number(new Date())}-${data.filename}`
-        await pump(data.file, fs.createWriteStream(`./public/${fileName}`))
+        await pump(data.file, fs.createWriteStream(`../public/${fileName}`))
 
         if (data.file.truncated) {
-          fs.rmSync(`./public/${fileName}`)
+          fs.rmSync(`../public/${fileName}`)
           reply.error({
             message: 'Unable to upload file, please retry!'
           })
