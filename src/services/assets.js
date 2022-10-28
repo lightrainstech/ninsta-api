@@ -1,5 +1,11 @@
 'use strict'
 
+const fs = require('fs')
+const util = require('util')
+const path = require('path')
+const { pipeline } = require('stream')
+const pump = util.promisify(pipeline)
+
 const Asset = require('../models/assetModel.js')
 const assetPayload = require('../payload/assetPayload.js')
 
@@ -17,7 +23,7 @@ module.exports = async function (fastify, opts) {
   fastify.post(
     '/',
     { schema: assetPayload.assetSchema },
-    async function (request, reply) {
+    async (request, reply) => {
       const { title, description, royalty, royaltyPer, media, mediaType } =
         request.body
       let { userId } = request.user
@@ -40,7 +46,29 @@ module.exports = async function (fastify, opts) {
         reply.error({ message: 'Unable to add asset, please retry!' })
       }
     }
-  )
+  ),
+    fastify.post('/upload', async (req, reply) => {
+      try {
+        const data = await req.file()
+
+        const fileName = `${Number(new Date())}-${data.filename}`
+        await pump(data.file, fs.createWriteStream(`./public/${fileName}`))
+
+        if (data.file.truncated) {
+          fs.rmSync(`./public/${fileName}`)
+          reply.error({
+            message: 'Unable to upload file, please retry!'
+          })
+        } else {
+          reply.success({
+            fileName,
+            mimeType: data.mimetype
+          })
+        }
+      } catch (error) {
+        reply.error({ message: 'Unable to upload file, please retry!', error })
+      }
+    })
 }
 
 module.exports.autoPrefix = '/assets'

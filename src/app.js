@@ -8,7 +8,6 @@ const swagger = require('@fastify/swagger')
 
 const Etag = require('@fastify/etag')
 const cors = require('@fastify/cors')
-
 // Import Swagger Options
 const swaggerConf = require('./config/swagger')
 
@@ -21,6 +20,14 @@ module.exports = function (fastify, opts, next) {
   })
   fastify.register(swagger, swaggerConf.options)
   fastify.register(Etag)
+
+  fastify.register(require('@fastify/multipart'), {
+    limits: {
+      fileSize: 50 * 1024 * 1024,
+      files: 1,
+      headerPairs: 10
+    }
+  })
 
   fastify.register(autoload, {
     dir: path.join(__dirname, 'plugins')
