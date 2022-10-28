@@ -10,5 +10,13 @@ exports.assetSchema = {
     .prop('royalty', S.string().pattern('^0x[a-fA-F0-9]{40}$'))
     .prop('royaltyPer', S.number())
     .prop('media', S.string().minLength(4).maxLength(40).required())
-    .prop('mediaType', S.string().enum(['image/jpeg', 'image/png']).required())
+    .prop('mediaType', S.string().enum(['image/jpeg', 'image/png']).required()),
+  security: [{ Bearer: [] }]
+}
+
+exports.uploadSchema = {
+  tags: ['Asset'],
+  summary: 'Add asset',
+  formData: S.object().prop('files', S.string().required()),
+  security: [{ Bearer: [] }]
 }

@@ -12,7 +12,7 @@ module.exports = async function (fastify, opts) {
     async function (request, reply) {
       const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000
       const { name, email } = request.body
-      const user = await userModal.getUserByEmail(email)
+      const user = await userModal.getUserByEmail(email.trim().toLowerCase())
       try {
         if (user === null) {
           let newU = await User.create({
@@ -20,7 +20,6 @@ module.exports = async function (fastify, opts) {
             email: email.toLowerCase().trim(),
             otp
           })
-
           const accessToken = fastify.jwt.sign(
             {
               userId: newU._id,
@@ -36,9 +35,22 @@ module.exports = async function (fastify, opts) {
             accessToken
           })
         } else {
-          reply.error({ message: 'User already exists, please login.' })
+          const accessToken = fastify.jwt.sign(
+            {
+              userId: user._id,
+              isVerified: user.isVerified,
+              email: user.email
+            },
+            { expiresIn: '7d' }
+          )
+          reply.success({
+            message: 'Sign up successful, please verify your phone number.',
+            otp: otp,
+            accessToken
+          })
         }
       } catch (error) {
+        console.log(error)
         reply.error({ message: 'Unable to create, please retry!' })
       }
     }
