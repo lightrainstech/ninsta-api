@@ -23,7 +23,7 @@ module.exports = function (fastify, opts, next) {
 
   fastify.register(require('@fastify/multipart'), {
     limits: {
-      fileSize: 50 * 1024 * 1024,
+      fileSize: 25 * 1024 * 1024,
       files: 1,
       headerPairs: 10
     }
