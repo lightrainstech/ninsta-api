@@ -15,6 +15,7 @@
     "fastify": "^4.9.2",
     "fastify-file-upload": "^4.0.0",
     "fluent-json-schema": "^4.0.0",
+    "fs-extra": "^10.1.0",
     "mongoose": "^6.7.0",
     "mongoose-unique-validator": "^3.1.0",
     "path": "^0.12.7",
