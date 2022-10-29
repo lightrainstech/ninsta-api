@@ -11,6 +11,16 @@ const assetPayload = require('../payload/assetPayload.js')
 
 const assetModal = new Asset()
 
+const getTodaysFolder = (inputDate = new Date()) => {
+  let date, month, year
+  date = inputDate.getDate()
+  month = inputDate.getMonth() + 1
+  year = inputDate.getFullYear()
+  date = date.toString().padStart(2, '0')
+  month = month.toString().padStart(2, '0')
+  return `${date}-${month}`
+}
+
 module.exports = async function (fastify, opts) {
   fastify.addHook('onRequest', async (request, reply) => {
     try {
@@ -53,12 +63,15 @@ module.exports = async function (fastify, opts) {
       async (req, reply) => {
         try {
           const data = await req.file()
-
+          console.log(getTodaysFolder())
           const fileName = `${Number(new Date())}-${data.filename}`
-          await pump(data.file, fs.createWriteStream(`../public/${fileName}`))
+          await pump(
+            data.file,
+            fs.createWriteStream(`../public/${getTodaysFolder()}/${fileName}`)
+          )
 
           if (data.file.truncated) {
-            fs.rmSync(`../public/${fileName}`)
+            fs.rmSync(`../public/${getTodaysFolder()}/${fileName}`)
             reply.error({
               message: 'Unable to upload file, please retry!'
             })
