@@ -65,6 +65,7 @@ module.exports = async function (fastify, opts) {
           } else {
             reply.success({
               fileName,
+              filePath: fileName,
               mimeType: data.mimetype
             })
           }
