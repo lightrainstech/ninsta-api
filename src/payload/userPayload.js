@@ -5,6 +5,7 @@ exports.otpSchema = {
   summary: 'User sign up',
   body: S.object()
     .prop('name', S.string().minLength(4).maxLength(40))
+    .prop('affCode', S.string().minLength(8).maxLength(8))
     .prop('email', S.string().format(S.FORMATS.EMAIL))
 }
 

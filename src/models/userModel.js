@@ -2,6 +2,11 @@
 // External Dependencies
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
+const { customAlphabet } = require('nanoid')
+const nanoidLong = customAlphabet(
+  '5eDVbMmnXU9GRaF3H4Cl2vwSzYsqfrLdyOIKWZ78hkJPgTN6xEjcQtABpu',
+  8
+)
 
 const UserSchema = new mongoose.Schema(
   {
@@ -11,6 +16,7 @@ const UserSchema = new mongoose.Schema(
       unique: true
     },
     name: { type: String, default: '--' },
+    affiliateCode: { type: String, default: null },
     otp: {
       type: Number,
       required: true,
@@ -25,6 +31,11 @@ const UserSchema = new mongoose.Schema(
     timestamps: true
   }
 )
+
+UserSchema.pre('save', async function (next) {
+  this.affiliateCode = nanoidLong()
+  next()
+})
 
 UserSchema.methods = {
   getUserById: async function (id) {
@@ -71,16 +82,20 @@ UserSchema.methods = {
 }
 
 UserSchema.statics = {
-  load: function (options, cb) {
-    options.select = options.select || 'email name isVerified'
-    return this.findOne(options.criteria).select(options.select).exec(cb)
+  load: async function (options, cb) {
+    options.select = options.select || 'email name isVerified affiliateCode'
+    let u = await this.find(options.criteria)
+      .select(options.select)
+      .limit(1)
+      .exec(cb)
+    return u[0] || null
   },
 
   list: function (options) {
     const criteria = options.criteria || {}
     const page = options.page - 1
     const limit = parseInt(options.limit) || 12
-    const select = options.select || 'email name createdAt -__v'
+    const select = options.select || 'email name createdAt affiliateCode -__v'
     return this.find(criteria)
       .select(select)
       .sort({ createdAt: -1 })
