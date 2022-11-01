@@ -11,7 +11,9 @@
     "@fastify/jwt": "^6.3.2",
     "@fastify/multipart": "^7.3.0",
     "@fastify/swagger": "^7.5.0",
+    "axios": "^1.1.3",
     "dotenv": "^16.0.3",
+    "ethers": "^5.7.2",
     "fastify": "^4.9.2",
     "fastify-file-upload": "^4.0.0",
     "fluent-json-schema": "^4.0.0",
@@ -22,7 +24,8 @@
     "nanoid": "^3.0.0",
     "nft.storage": "^7.0.0",
     "path": "^0.12.7",
-    "v8-compile-cache": "^2.3.0"
+    "v8-compile-cache": "^2.3.0",
+    "web3": "^1.8.0"
   },
   "scripts": {
     "start": "node ./src/server.js",
