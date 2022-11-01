@@ -6,6 +6,7 @@ const util = require('util')
 const path = require('path')
 const { pipeline } = require('stream')
 const pump = util.promisify(pipeline)
+const axios = require('axios')
 
 const { NFTStorage, File } = require('nft.storage')
 const mime = require('mime')
@@ -15,6 +16,8 @@ const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
 
 const Asset = require('../models/assetModel.js')
 const assetPayload = require('../payload/assetPayload.js')
+
+const ninstaContract = require('../utils/contract.js')
 
 const assetModal = new Asset()
 
@@ -38,10 +41,20 @@ module.exports = async function (fastify, opts) {
     '/',
     { schema: assetPayload.assetSchema },
     async (request, reply) => {
-      const { title, description, royalty, royaltyPer, media, mediaType } =
-        request.body
+      const {
+        title,
+        description,
+        royalty,
+        royaltyPer,
+        assetUri,
+        media,
+        mediaType,
+        wallet,
+        handle
+      } = request.body
       let { userId } = request.user
       try {
+        let mintResult = await ninstaContract.mintNFT(wallet, assetUri, handle)
         let newAsset = await Asset.create({
           user: userId,
           title,
@@ -49,7 +62,10 @@ module.exports = async function (fastify, opts) {
           royalty,
           media,
           mediaType,
-          royaltyPer
+          royaltyPer,
+          assetUri,
+          tokenId: parseInt(mintResult.tokenId),
+          isMinted: true
         })
         reply.success({
           message: 'Asset added, waiting to be minted!',
@@ -63,32 +79,41 @@ module.exports = async function (fastify, opts) {
   ),
     fastify.post(
       '/upload',
-      { schema: assetPayload.uploadSchema },
+      //{ schema: assetPayload.uploadSchema },
       async (req, reply) => {
-        console.log(req.body)
         try {
-          const data = await req.file()
+          const { file, title, description } = req.body
+          const fileName = `${Number(new Date())}-${file.filename}`
+          await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
 
-          const fileName = `${Number(new Date())}-${data.filename}`
-          await pump(data.file, fs.createWriteStream(`../public/${fileName}`))
-
-          if (data.file.truncated) {
-            fs.rmSync(`../public/${fileName}`)
+          if (file.file.truncated) {
+            fs.rmSync(`./public/${fileName}`)
             reply.error({
               message: 'Unable to upload file, please retry!'
             })
           } else {
-            const image = await fileFromPath(`../public/${fileName}`)
+            const image = await fileFromPath(`./public/${fileName}`)
             let ipnft = await nftstorage.store({
-              image,
-              name: 'name 01',
-              description: 'desc'
-            })
+                name: title.value,
+                description: description.value,
+                image: new File(
+                  [await fs.promises.readFile(`./public/${fileName}`)],
+                  fileName,
+                  { type: file.mimetype }
+                )
+              }),
+              url = ipnft.url.split('//'),
+              response = await axios({
+                method: 'get',
+                url: `https://ipfs.io/ipfs/${url[1]}`
+              })
             reply.success({
               fileName,
               filePath: fileName,
-              mimeType: data.mimetype,
-              ipnft
+              mimeType: file.mimetype,
+              ipnft,
+              assetUri: `https://ipfs.io/ipfs/${url[1]}`,
+              image: response.data.image
             })
           }
         } catch (error) {
