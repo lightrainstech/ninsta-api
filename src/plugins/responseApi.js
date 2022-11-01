@@ -26,6 +26,7 @@ module.exports = fp(function (fastify, opts, next) {
   })
 
   fastify.setErrorHandler(function (error, request, reply) {
+    console.log(error)
     let resp
     if (error.validation) {
       resp = {

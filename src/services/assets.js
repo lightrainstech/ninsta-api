@@ -1,4 +1,5 @@
 'use strict'
+require('dotenv').config()
 
 const fs = require('fs')
 const util = require('util')
@@ -6,10 +7,23 @@ const path = require('path')
 const { pipeline } = require('stream')
 const pump = util.promisify(pipeline)
 
+const { NFTStorage, File } = require('nft.storage')
+const mime = require('mime')
+
+const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY
+const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
+
 const Asset = require('../models/assetModel.js')
 const assetPayload = require('../payload/assetPayload.js')
 
 const assetModal = new Asset()
+
+async function fileFromPath(filePath) {
+  // let fixedPath = path.join(__dirname, '../', '../', filePath)
+  const content = await fs.promises.readFile(filePath)
+  const type = mime.getType(filePath)
+  return new File([content], path.basename(filePath), { type })
+}
 
 module.exports = async function (fastify, opts) {
   fastify.addHook('onRequest', async (request, reply) => {
@@ -51,6 +65,7 @@ module.exports = async function (fastify, opts) {
       '/upload',
       { schema: assetPayload.uploadSchema },
       async (req, reply) => {
+        console.log(req.body)
         try {
           const data = await req.file()
 
@@ -63,13 +78,21 @@ module.exports = async function (fastify, opts) {
               message: 'Unable to upload file, please retry!'
             })
           } else {
+            const image = await fileFromPath(`../public/${fileName}`)
+            let ipnft = await nftstorage.store({
+              image,
+              name: 'name 01',
+              description: 'desc'
+            })
             reply.success({
               fileName,
               filePath: fileName,
-              mimeType: data.mimetype
+              mimeType: data.mimetype,
+              ipnft
             })
           }
         } catch (error) {
+          console.log(error)
           reply.error({
             message: 'Unable to upload file, please retry!',
             error
