@@ -1,7 +1,7 @@
 {
   "name": "ninsta-api",
   "description": "boilerplate api",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "main": "./src/server.js",
   "license": "MIT",
   "dependencies": {
