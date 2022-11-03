@@ -9,11 +9,27 @@ const AssetSchema = new mongoose.Schema(
     description: { type: String, default: '--' },
     royalty: { type: String, default: '--' },
     royaltyPer: { type: Number, default: 0 },
-    media: { type: String, default: '--' },
-    mediaType: { type: String, default: '--' },
+    media: {
+      path: {
+        type: String,
+        default: '--'
+      },
+      mimeType: {
+        type: String,
+        default: 'image/jpeg'
+      }
+    },
     isMinted: {
       type: Boolean,
       default: false
+    },
+    tokenId: {
+      type: String,
+      unique: true
+    },
+    assetUri: {
+      type: String,
+      default: '--'
     }
   },
   {
