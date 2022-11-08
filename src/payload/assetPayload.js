@@ -9,10 +9,7 @@ exports.assetSchema = {
     .prop('wallet', S.string().pattern('^0x[a-fA-F0-9]{40}$').required())
     .prop('royalty', S.string().pattern('^0x[a-fA-F0-9]{40}$'))
     .prop('royaltyPer', S.number())
-    .prop('media', S.string().minLength(4))
-    .prop('handle', S.string().minLength(3))
-    .prop('assetUri', S.string().format(S.FORMATS.URI))
-    .prop('mediaType', S.string().enum(['image/jpeg', 'image/png'])),
+    .prop('handle', S.string().minLength(3)),
   security: [{ Bearer: [] }]
 }
 

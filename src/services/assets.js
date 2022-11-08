@@ -39,92 +39,59 @@ module.exports = async function (fastify, opts) {
 
   fastify.post(
     '/',
-    { schema: assetPayload.assetSchema },
-    async (request, reply) => {
-      const {
-        title,
-        description,
-        royalty,
-        royaltyPer,
-        assetUri,
-        media,
-        mediaType,
-        wallet,
-        handle
-      } = request.body
-      let { userId } = request.user
+    //{ schema: assetPayload.assetSchema },
+    async (req, reply) => {
       try {
-        let mintResult = await ninstaContract.mintNFT(wallet, assetUri, handle)
-        let newAsset = await Asset.create({
-          user: userId,
+        const {
+          file,
           title,
           description,
+          wallet,
+          handle,
           royalty,
-          media,
-          mediaType,
-          royaltyPer,
-          assetUri,
-          tokenId: parseInt(mintResult.tokenId),
-          isMinted: true
-        })
-        reply.success({
-          message: 'Asset added, waiting to be minted!',
-          asset: newAsset
-        })
-      } catch (error) {
-        console.log(error)
-        reply.error({ message: 'Unable to add asset, please retry!' })
-      }
-    }
-  ),
-    fastify.post(
-      '/upload',
-      //{ schema: assetPayload.uploadSchema },
-      async (req, reply) => {
-        try {
-          const { file, title, description } = req.body
-          const fileName = `${Number(new Date())}-${file.filename}`
-          await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
+          royaltyPer
+        } = req.body
+        const { userId } = req.user
+        const fileName = `${Number(new Date())}-${file.filename}`
+        await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
 
-          if (file.file.truncated) {
-            fs.rmSync(`./public/${fileName}`)
-            reply.error({
-              message: 'Unable to upload file, please retry!'
-            })
-          } else {
-            const image = await fileFromPath(`./public/${fileName}`)
-            let ipnft = await nftstorage.store({
-                name: title.value,
-                description: description.value,
-                image: new File(
-                  [await fs.promises.readFile(`./public/${fileName}`)],
-                  fileName,
-                  { type: file.mimetype }
-                )
-              }),
-              url = ipnft.url.split('//'),
-              response = await axios({
-                method: 'get',
-                url: `https://ipfs.io/ipfs/${url[1]}`
-              })
-            reply.success({
-              fileName,
-              filePath: fileName,
-              mimeType: file.mimetype,
-              ipnft,
-              assetUri: `https://ipfs.io/ipfs/${url[1]}`,
-              image: response.data.image
-            })
-          }
-        } catch (error) {
-          console.log(error)
+        if (file.file.truncated) {
+          fs.rmSync(`./public/${fileName}`)
           reply.error({
-            message: 'Unable to upload file, please retry!',
-            error
+            message: 'Unable to upload file, please retry!'
+          })
+        } else {
+          const image = await fileFromPath(`./public/${fileName}`)
+          let jobData = {
+              name: title.value,
+              description: description.value,
+              filePath: './public/${fileName}',
+              fileName: fileName,
+              fileType: file.mimetype,
+              royalty: royalty.value,
+              royaltyPer: royaltyPer.value,
+              wallet: wallet.value,
+              handle: handle.value,
+              userId
+            },
+            job = fastify.agenda.create('mint:nft', jobData)
+          let scheduletime =
+            process.env.MINTING_SCHEDULE_TIME || 'in 20 seconds'
+          job.schedule(scheduletime).save()
+          reply.success({
+            message: 'Your NFT is minting',
+            data: jobData
           })
         }
+      } catch (error) {
+        console.log(error)
+        reply.error({
+          message: 'Unable to upload file, please retry!',
+          error
+        })
       }
-    )
+    }
+  )
 }
 
 module.exports.autoPrefix = '/assets'
