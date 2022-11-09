@@ -82,6 +82,7 @@ module.exports = async function (agenda) {
         royaltyPer,
         assetUri: job.attrs.data?.assetUri,
         tokenId: job.attrs.data?.mintedData?.tokenId,
+        wallet: await ninstaContract.checkSumAddress(wallet),
         isMinted: true
       })
       console.log(

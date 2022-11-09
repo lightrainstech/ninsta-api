@@ -30,7 +30,7 @@ const mintNFT = (toAddress, assetUri, handle) =>
             gasPrice: feeData
           })
           .then(tx => {
-            console.log('Waiting for confirmation....', tx)
+            console.log('Waiting for confirmation....')
             return tx.wait()
           })
           .then(receipt => {
