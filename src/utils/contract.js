@@ -34,9 +34,8 @@ const mintNFT = (toAddress, assetUri, handle) =>
             return tx.wait()
           })
           .then(receipt => {
-            console.log(`Completed`, receipt)
+            console.log(`---------Minting Completed---------`)
             let log = iface.parseLog(receipt.logs[0])
-            console.log(`Log`, log)
             return resolve({
               tokenId: log.args.tokenId,
               status: receipt.status
@@ -64,6 +63,22 @@ const calculateGas = async () => {
   }
 }
 
+const getLimit = async account => {
+  try {
+    const address = web3.utils.toChecksumAddress(account)
+    let data = await ninstaContract.getFreeMinting(address)
+    return parseInt(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+const checkSumAddress = async account => {
+  return web3.utils.toChecksumAddress(account)
+}
+
 module.exports = {
-  mintNFT
+  mintNFT,
+  getLimit,
+  checkSumAddress
 }

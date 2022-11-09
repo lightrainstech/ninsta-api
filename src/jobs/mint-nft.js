@@ -13,7 +13,7 @@ const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY
 const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
 
 module.exports = async function (agenda) {
-  agenda.define('mint:nft', async (job, done) => {
+  agenda.define('mintnft', async (job, done) => {
     try {
       const {
         name,
@@ -62,6 +62,7 @@ module.exports = async function (agenda) {
             media: media,
             assetUri: assetUri
           }
+          fs.unlinkSync(`./public/${fileName}`)
         }
         let mintResult = await ninstaContract.mintNFT(wallet, assetUri, handle)
         tokenId = parseInt(mintResult.tokenId)
@@ -85,15 +86,14 @@ module.exports = async function (agenda) {
       })
       console.log(
         `----------Minting Completed--------NINSTA-NFT-${parseInt(
-          mintResult.tokenId
+          job.attrs.data?.mintedData?.tokenId
         )}`
       )
       job.remove()
-      fs.unlinkSync(`./public/${fileName}`)
-
       done()
     } catch (e) {
       console.log('error', e)
+      throw e
       done()
     }
   })

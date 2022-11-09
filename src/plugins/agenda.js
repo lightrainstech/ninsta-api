@@ -16,7 +16,15 @@ async function agendaConnect(fastify, options) {
     })
 
     if (agenda) {
+      agenda.on('start', job => {
+        console.log('Job %s starting', job.attrs.name)
+      })
+      agenda.on('complete', job => {
+        console.log(`Job ${job.attrs.name} finished`)
+      })
+
       agenda.on('fail', function (err, job) {
+        console.log('-------job failed--------')
         let extraMessage = ''
 
         if (job.attrs.failCount >= 10) {
@@ -44,6 +52,14 @@ async function agendaConnect(fastify, options) {
           )
         }
       })
+
+      async function graceful() {
+        await agenda.stop()
+        process.exit(0)
+      }
+
+      process.on('SIGTERM', graceful)
+      process.on('SIGINT', graceful)
 
       fastify.decorate('agenda', agenda)
     } else {

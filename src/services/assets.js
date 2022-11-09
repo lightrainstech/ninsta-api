@@ -52,35 +52,43 @@ module.exports = async function (fastify, opts) {
           royaltyPer
         } = req.body
         const { userId } = req.user
-        const fileName = `${Number(new Date())}-${file.filename}`
-        await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
+        let limit = await ninstaContract.getLimit(wallet.value)
+        if (limit > 0) {
+          const fileName = `${Number(new Date())}-${file.filename}`
+          await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
 
-        if (file.file.truncated) {
-          fs.rmSync(`./public/${fileName}`)
-          reply.error({
-            message: 'Unable to upload file, please retry!'
-          })
+          if (file.file.truncated) {
+            fs.rmSync(`./public/${fileName}`)
+            reply.error({
+              message: 'Unable to upload file, please retry!'
+            })
+          } else {
+            const image = await fileFromPath(`./public/${fileName}`)
+            let jobData = {
+                name: title.value,
+                description: description.value,
+                filePath: './public/${fileName}',
+                fileName: fileName,
+                fileType: file.mimetype,
+                royalty: royalty.value,
+                royaltyPer: royaltyPer.value,
+                wallet: wallet.value,
+                handle: handle.value,
+                userId
+              },
+              job = fastify.agenda.create('mintnft', jobData)
+            fastify.agenda.now('test')
+            let scheduletime = process.env.MINTING_SCHEDULE_TIME
+            console.log(scheduletime)
+            job.schedule(scheduletime).save()
+            reply.success({
+              message: 'Your NFT is minting',
+              data: jobData
+            })
+          }
         } else {
-          const image = await fileFromPath(`./public/${fileName}`)
-          let jobData = {
-              name: title.value,
-              description: description.value,
-              filePath: './public/${fileName}',
-              fileName: fileName,
-              fileType: file.mimetype,
-              royalty: royalty.value,
-              royaltyPer: royaltyPer.value,
-              wallet: wallet.value,
-              handle: handle.value,
-              userId
-            },
-            job = fastify.agenda.create('mint:nft', jobData)
-          let scheduletime =
-            process.env.MINTING_SCHEDULE_TIME || 'in 20 seconds'
-          job.schedule(scheduletime).save()
-          reply.success({
-            message: 'Your NFT is minting',
-            data: jobData
+          reply.error({
+            message: 'You reached maximum limit for minting free NFTs'
           })
         }
       } catch (error) {

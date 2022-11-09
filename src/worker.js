@@ -46,7 +46,7 @@ mongoose
 
     // Error reporting and retry logic
     process.on('unhandledRejection', error => {
-      console.log(error)
+      console.log('error', error)
       process.exit()
     })
   })
