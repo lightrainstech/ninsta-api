@@ -54,7 +54,7 @@ module.exports = async function (fastify, opts) {
         const { userId } = req.user
         let limit = await ninstaContract.getLimit(wallet.value)
         console.log(limit)
-        if (limit > 0) {
+        if (limit <= 3) {
           const fileName = `${Number(new Date())}-${file.filename}`
           await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
 
@@ -71,19 +71,26 @@ module.exports = async function (fastify, opts) {
                 filePath: './public/${fileName}',
                 fileName: fileName,
                 fileType: file.mimetype,
-                royalty: royalty.value,
-                royaltyPer: royaltyPer.value,
+                royalty: royalty.value || '',
+                royaltyPer: royaltyPer.value || 0,
                 wallet: wallet.value,
                 handle: handle.value,
                 userId
               },
               job = fastify.agenda.create('mintnft', jobData)
-            let scheduletime = process.env.MINTING_SCHEDULE_TIME
-            console.log(scheduletime)
+            let scheduletime =
+              process.env.MINTING_SCHEDULE_TIME || 'in 2 seconds'
             job.schedule(scheduletime).save()
             reply.success({
               message: 'Your NFT is minting',
-              data: jobData
+              data: {
+                name: title.value,
+                description: description.value,
+                royalty: royalty.value || '',
+                royaltyPer: royaltyPer.value || 0,
+                wallet: wallet.value,
+                handle: handle.value
+              }
             })
           }
         } else {
