@@ -53,6 +53,7 @@ module.exports = async function (fastify, opts) {
         } = req.body
         const { userId } = req.user
         let limit = await ninstaContract.getLimit(wallet.value)
+        console.log(limit)
         if (limit > 0) {
           const fileName = `${Number(new Date())}-${file.filename}`
           await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
@@ -77,7 +78,6 @@ module.exports = async function (fastify, opts) {
                 userId
               },
               job = fastify.agenda.create('mintnft', jobData)
-            fastify.agenda.now('test')
             let scheduletime = process.env.MINTING_SCHEDULE_TIME
             console.log(scheduletime)
             job.schedule(scheduletime).save()
