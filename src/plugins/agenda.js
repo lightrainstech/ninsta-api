@@ -29,14 +29,11 @@ async function agendaConnect(fastify, options) {
 
         if (job.attrs.failCount >= 10) {
           extraMessage = format('too many failures, giving up')
-        } else if (shouldRetry(err)) {
-          job.attrs.nextRunAt = secondsFromNowDate(36000)
-
-          extraMessage = format(
-            'will retry in %s seconds at %s',
-            36000,
-            job.attrs.nextRunAt.toISOString()
-          )
+        } else {
+          let count = job.attrs.failCount || 1
+          let t = new Date()
+          t.setSeconds(t.getSeconds() + 10 * count)
+          job.attrs.nextRunAt = t
 
           job.save()
         }
