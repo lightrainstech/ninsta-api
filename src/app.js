@@ -21,13 +21,17 @@ module.exports = function (fastify, opts, next) {
   fastify.register(swagger, swaggerConf.options)
   fastify.register(Etag)
 
-  fastify.register(require('@fastify/multipart'), {
-    limits: {
-      fileSize: 25 * 1024 * 1024,
-      files: 1,
-      headerPairs: 10
+  fastify.register(
+    require('@fastify/multipart'),
+    { attachFieldsToBody: true },
+    {
+      limits: {
+        fileSize: 25 * 1024 * 1024,
+        files: 1,
+        headerPairs: 10
+      }
     }
-  })
+  )
 
   fastify.register(autoload, {
     dir: path.join(__dirname, 'plugins')

@@ -1,6 +1,7 @@
 'use strict'
 
 const User = require('../models/userModel.js')
+const Affiliate = require('../models/affiliateModel.js')
 const userPayload = require('../payload/userPayload.js')
 
 const userModal = new User()
@@ -11,21 +12,21 @@ module.exports = async function (fastify, opts) {
     { schema: userPayload.otpSchema },
     async function (request, reply) {
       const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000
-      const { name, email } = request.body
-      const user = await userModal.getUserByEmail(email)
+      const { name, email, affCode } = request.body
+      let user = await userModal.getUserByEmail(email.trim().toLowerCase())
       try {
         if (user === null) {
-          let newU = await User.create({
+          user = await User.create({
             name,
             email: email.toLowerCase().trim(),
             otp
           })
-
           const accessToken = fastify.jwt.sign(
             {
-              userId: newU._id,
-              isVerified: newU.isVerified,
-              email: newU.email
+              userId: user._id,
+              isVerified: user.isVerified,
+              email: user.email,
+              affiliateCode: user.affiliateCode
             },
             { expiresIn: '7d' }
           )
@@ -33,12 +34,34 @@ module.exports = async function (fastify, opts) {
           reply.success({
             message: 'Sign up successful, please verify your phone number.',
             otp: otp,
-            accessToken
+            accessToken,
+            affiliateCode: user.affiliateCode
           })
         } else {
-          reply.error({ message: 'User already exists, please login.' })
+          const accessToken = fastify.jwt.sign(
+            {
+              userId: user._id,
+              isVerified: user.isVerified,
+              email: user.email,
+              affiliateCode: user.affiliateCode
+            },
+            { expiresIn: '7d' }
+          )
+          reply.success({
+            message: 'Sign up successful, please verify your phone number.',
+            accessToken,
+            affiliateCode: user.affiliateCode
+          })
+        }
+
+        if (affCode) {
+          Affiliate.create({
+            user: user._id,
+            affiliateCode: affCode
+          })
         }
       } catch (error) {
+        console.log(error)
         reply.error({ message: 'Unable to create, please retry!' })
       }
     }
