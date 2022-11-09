@@ -30,6 +30,10 @@ const AssetSchema = new mongoose.Schema(
     assetUri: {
       type: String,
       default: '--'
+    },
+    wallet: {
+      type: String,
+      default: '--'
     }
   },
   {
@@ -64,7 +68,7 @@ AssetSchema.methods = {
 AssetSchema.statics = {
   load: function (options, cb) {
     options.select =
-      options.select || 'title, description, royalty, royaltyPer media'
+      options.select || 'title description royalty royaltyPer media'
     return this.findOne(options.criteria).select(options.select).exec(cb)
   },
 
@@ -74,7 +78,7 @@ AssetSchema.statics = {
     const limit = parseInt(options.limit) || 12
     const select =
       options.select ||
-      'user title, description, royalty, royaltyPer, media, createdAt -__v'
+      'user title description royalty royaltyPer media assetUri tokenId wallet createdAt -__v'
     return this.find(criteria)
       .select(select)
       .sort({ createdAt: -1 })
