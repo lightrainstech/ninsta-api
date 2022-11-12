@@ -5,6 +5,12 @@
       "script": "./src/server.js",
       "exec_mode": "cluster",
       "max_memory_restart": "512M"
+    },
+    {
+      "name": "ninsta-job",
+      "script": "./src/worker.js",
+      "exec_mode": "cluster",
+      "max_memory_restart": "128M"
     }
   ]
 }

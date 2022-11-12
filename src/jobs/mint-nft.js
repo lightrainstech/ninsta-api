@@ -2,23 +2,22 @@
 require('dotenv').config()
 
 const fs = require('fs')
-const axios = require('axios')
+const pinataSDK = require('@pinata/sdk')
 const mongoose = require('mongoose')
 const Asset = mongoose.model('Asset')
-const { NFTStorage, File } = require('nft.storage')
 
 const ninstaContract = require('../utils/contract.js')
 
-const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY
-const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
-
+const pinata = new pinataSDK(
+  process.env.PINATA_API_KEY,
+  process.env.PINATA_SECRET
+)
 module.exports = async function (agenda) {
   agenda.define('mintnft', async (job, done) => {
     try {
       const {
         name,
         description,
-        filePath,
         fileName,
         fileType,
         royalty,
@@ -27,69 +26,48 @@ module.exports = async function (agenda) {
         handle,
         userId
       } = job.attrs.data
-
-      let tokenId, assetUri, media
-
-      if (job.attrs.data?.mintedData) {
-        tokenId = job.attrs.data.mintedData?.tokenId
-        assetUri = job.attrs.data.mintedData?.assetUri
-        media = job.attrs.data.mintedData?.media
-      } else {
-        if (!job.attrs.data?.isUploaded) {
-          console.log('----Uploading------')
-          let ipnft = await nftstorage.store({
+      let tokenId
+      if (!job.attrs.data?.isMinted) {
+        if (!job.attrs.data?.isMediaUploaded) {
+          let media = await uploadImage(`./public/${fileName}`, name)
+          job.attrs.data.isMediaUploaded = true
+          job.attrs.data.media = media
+        }
+        if (!job.attrs.data?.isMetaUploaded) {
+          let jsonData = {
               name,
               description,
-              image: new File(
-                [await fs.promises.readFile(`./public/${fileName}`)],
-                fileName,
-                { type: fileType }
-              )
-            }),
-            url = ipnft.url.split('//')
+              image: job.attrs.data.media
+            },
+            metaData = await uploadJson(jsonData),
+            assetUri = `https://ipfs.io/ipfs/${metaData}`
 
-          assetUri = `https://ipfs.io/ipfs/${url[1]}`
-
-          let response = await axios({
-              method: 'get',
-              url: assetUri
-            }),
-            imageUrl = response?.data?.image?.split('//')
-          job.attrs.data.isUploaded = true
-          media = `https://ipfs.io/ipfs/${imageUrl[1]}`
-          job.attrs.data = {
-            ...job.attrs.data,
-            media: media,
-            assetUri: assetUri
-          }
-          fs.unlinkSync(`./public/${fileName}`)
-        }
-        let mintResult = await ninstaContract.mintNFT(wallet, assetUri, handle)
-        tokenId = parseInt(mintResult.tokenId)
-        job.attrs.data.mintedData = {
-          ...job.attrs.data,
-          tokenId: tokenId
+          job.attrs.data.isMetaUploaded = true
+          job.attrs.data.assetUri = assetUri
+          let mintResult = await ninstaContract.mintNFT(
+            wallet,
+            assetUri,
+            handle
+          )
+          tokenId = parseInt(mintResult.tokenId)
+          job.attrs.data.isMinted = true
+          job.attrs.data.tokenId = tokenId
         }
       }
-
       let newAsset = await Asset.create({
         user: userId,
         title: name,
         description,
         royalty,
-        media: job.attrs.data?.media,
-        mediaType: fileType,
+        media: { path: job.attrs.data?.media, mimeType: fileType },
         royaltyPer,
         assetUri: job.attrs.data?.assetUri,
-        tokenId: job.attrs.data?.mintedData?.tokenId,
+        tokenId: job.attrs.data?.tokenId || tokenId,
         wallet: await ninstaContract.checkSumAddress(wallet),
         isMinted: true
       })
-      console.log(
-        `----------Minting Completed--------NINSTA-NFT-${parseInt(
-          job.attrs.data?.mintedData?.tokenId
-        )}`
-      )
+
+      console.log(`----------Data saved-------NINSTA-NFT`)
       job.remove()
       done()
     } catch (e) {
@@ -98,4 +76,42 @@ module.exports = async function (agenda) {
       done()
     }
   })
+}
+
+const uploadImage = async (filePath, name) => {
+  try {
+    console.log('----Uploading Media------')
+    let pinataStatus = await pinata.testAuthentication()
+    const readableStreamForFile = fs.createReadStream(filePath),
+      options = {
+        pinataMetadata: {
+          name: name
+        }
+      },
+      { IpfsHash } = await pinata.pinFileToIPFS(readableStreamForFile, options)
+    let imageUrl = 'https://gateway.pinata.cloud/ipfs/${IpfsHash}'
+    console.log(`-------------Media uploaded-----------`)
+    fs.unlinkSync(filePath)
+    return imageUrl
+  } catch (e) {
+    console.log(`----------failed to upload media-------`)
+    throw e
+  }
+}
+
+const uploadJson = async data => {
+  try {
+    console.log('----Uploading Meta data------')
+    let pinataStatus = await pinata.testAuthentication()
+    const options = {
+      pinataMetadata: {
+        name: data.name
+      }
+    }
+    let result = await pinata.pinJSONToIPFS(data, options)
+    return result?.IpfsHash
+  } catch (e) {
+    console.log(`----------failed to upload metadata-------`)
+    throw e
+  }
 }
