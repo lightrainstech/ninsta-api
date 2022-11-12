@@ -8,11 +8,7 @@ const { pipeline } = require('stream')
 const pump = util.promisify(pipeline)
 const axios = require('axios')
 
-const { NFTStorage, File } = require('nft.storage')
 const mime = require('mime')
-
-const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY
-const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
 
 const Asset = require('../models/assetModel.js')
 const assetPayload = require('../payload/assetPayload.js')
@@ -20,13 +16,6 @@ const assetPayload = require('../payload/assetPayload.js')
 const ninstaContract = require('../utils/contract.js')
 
 const assetModal = new Asset()
-
-async function fileFromPath(filePath) {
-  // let fixedPath = path.join(__dirname, '../', '../', filePath)
-  const content = await fs.promises.readFile(filePath)
-  const type = mime.getType(filePath)
-  return new File([content], path.basename(filePath), { type })
-}
 
 module.exports = async function (fastify, opts) {
   fastify.addHook('onRequest', async (request, reply) => {
@@ -64,18 +53,20 @@ module.exports = async function (fastify, opts) {
               message: 'Unable to upload file, please retry!'
             })
           } else {
-            const image = await fileFromPath(`./public/${fileName}`)
             let jobData = {
                 name: title.value,
                 description: description.value,
-                filePath: './public/${fileName}',
                 fileName: fileName,
                 fileType: file.mimetype,
                 royalty: royalty.value || '',
                 royaltyPer: royaltyPer.value || 0,
                 wallet: wallet.value,
                 handle: handle.value,
-                userId
+                userId,
+                isMinted: false,
+                isMediaUploaded: false,
+                isMetaUploaded: false,
+                tokenId: null
               },
               job = fastify.agenda.create('mintnft', jobData)
             let scheduletime =
