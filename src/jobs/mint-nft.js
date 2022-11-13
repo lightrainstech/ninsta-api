@@ -89,7 +89,7 @@ const uploadImage = async (filePath, name) => {
         }
       },
       { IpfsHash } = await pinata.pinFileToIPFS(readableStreamForFile, options)
-    let imageUrl = 'https://gateway.pinata.cloud/ipfs/${IpfsHash}'
+    let imageUrl = `https://gateway.pinata.cloud/ipfs/${IpfsHash}`
     console.log(`-------------Media uploaded-----------`)
     fs.unlinkSync(filePath)
     return imageUrl
