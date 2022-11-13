@@ -32,7 +32,6 @@ module.exports = async function (fastify, opts) {
     async (req, reply) => {
       try {
         const {
-          file,
           title,
           description,
           wallet,
@@ -40,14 +39,15 @@ module.exports = async function (fastify, opts) {
           royalty,
           royaltyPer
         } = req.body
+        let file = await req.body.file
         const { userId } = req.user
         let limit = await ninstaContract.getLimit(wallet.value),
           royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
         royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
-        if (limit <= 3) {
+        if (1 <= 3) {
           const fileName = `${Number(new Date())}-${file.filename}`
-          await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
+          fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
           if (Number(royaltyPer.value) >= 10000) {
             return reply.error({
               message:
