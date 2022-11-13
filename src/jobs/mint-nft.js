@@ -86,7 +86,7 @@ const uploadImage = async (filePath, name) => {
     const readableStreamForFile = fs.createReadStream(filePath),
       options = {
         pinataMetadata: {
-          name: name
+          name: `image:${name}`
         }
       },
       { IpfsHash } = await pinata.pinFileToIPFS(readableStreamForFile, options)
