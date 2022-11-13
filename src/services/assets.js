@@ -98,7 +98,6 @@ module.exports = async function (fastify, opts) {
           })
         }
       } catch (error) {
-        console.log(error)
         return reply.error({
           message: `Failed to mint: ${error}`
         })
