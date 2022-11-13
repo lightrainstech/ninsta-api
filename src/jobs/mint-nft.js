@@ -73,7 +73,6 @@ module.exports = async function (agenda) {
       job.remove()
       done()
     } catch (e) {
-      console.log('error', e)
       throw e
       done()
     }
