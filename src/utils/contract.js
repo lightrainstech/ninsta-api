@@ -21,14 +21,27 @@ const ninstaContract = new ethers.Contract(
   signer
 )
 let iface = new ethers.utils.Interface(nftAbi)
-const mintNFT = (toAddress, assetUri, handle) =>
+const mintNFT = (
+  toAddress,
+  assetUri,
+  handle,
+  royaltyWallet,
+  royaltyPercentage
+) =>
   new Promise((resolve, reject) =>
     calculateGas()
       .then(feeData =>
         ninstaContract
-          .adminMint(toAddress, assetUri, handle, {
-            gasPrice: feeData
-          })
+          .adminMint(
+            toAddress,
+            assetUri,
+            handle,
+            royaltyWallet,
+            royaltyPercentage,
+            {
+              gasPrice: feeData
+            }
+          )
           .then(tx => {
             console.log('Waiting for confirmation....')
             return tx.wait()

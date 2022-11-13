@@ -47,7 +47,9 @@ module.exports = async function (agenda) {
           let mintResult = await ninstaContract.mintNFT(
             wallet,
             assetUri,
-            handle
+            handle,
+            royalty,
+            royaltyPer
           )
           tokenId = parseInt(mintResult.tokenId)
           job.attrs.data.isMinted = true
@@ -89,7 +91,7 @@ const uploadImage = async (filePath, name) => {
         }
       },
       { IpfsHash } = await pinata.pinFileToIPFS(readableStreamForFile, options)
-    let imageUrl = `https://gateway.pinata.cloud/ipfs/${IpfsHash}`
+    let imageUrl = `https://ipfs.io/ipfs/${IpfsHash}`
     console.log(`-------------Media uploaded-----------`)
     fs.unlinkSync(filePath)
     return imageUrl
