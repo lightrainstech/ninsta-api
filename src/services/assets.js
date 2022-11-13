@@ -41,15 +41,23 @@ module.exports = async function (fastify, opts) {
           royaltyPer
         } = req.body
         const { userId } = req.user
-        let limit = await ninstaContract.getLimit(wallet.value)
-        console.log(limit)
+        let limit = await ninstaContract.getLimit(wallet.value),
+          royaltyWallet =
+            royalty.value || '0x0000000000000000000000000000000000000000'
+        royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
         if (limit <= 3) {
           const fileName = `${Number(new Date())}-${file.filename}`
           await pump(file.file, fs.createWriteStream(`./public/${fileName}`))
+          if (Number(royaltyPer.value) >= 10000) {
+            return reply.error({
+              message:
+                'Royalty percentage limit exceedes. Must be less than 10000'
+            })
+          }
 
           if (file.file.truncated) {
             fs.rmSync(`./public/${fileName}`)
-            reply.error({
+            return reply.error({
               message: 'Unable to upload file, please retry!'
             })
           } else {
@@ -58,8 +66,8 @@ module.exports = async function (fastify, opts) {
                 description: description.value,
                 fileName: fileName,
                 fileType: file.mimetype,
-                royalty: royalty.value || '',
-                royaltyPer: royaltyPer.value || 0,
+                royalty: royaltyWallet,
+                royaltyPer: Number(royaltyPer.value) || 0,
                 wallet: wallet.value,
                 handle: handle.value,
                 userId,
@@ -72,7 +80,7 @@ module.exports = async function (fastify, opts) {
             let scheduletime =
               process.env.MINTING_SCHEDULE_TIME || 'in 2 seconds'
             job.schedule(scheduletime).save()
-            reply.success({
+            return reply.success({
               message: 'Your NFT is minting',
               data: {
                 name: title.value,
@@ -85,15 +93,14 @@ module.exports = async function (fastify, opts) {
             })
           }
         } else {
-          reply.error({
+          return reply.error({
             message: 'You reached maximum limit for minting free NFTs'
           })
         }
       } catch (error) {
         console.log(error)
-        reply.error({
-          message: 'Unable to upload file, please retry!',
-          error
+        return reply.error({
+          message: `Failed to mint: ${error}`
         })
       }
     }

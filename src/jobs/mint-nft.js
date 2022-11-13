@@ -60,7 +60,7 @@ module.exports = async function (agenda) {
         user: userId,
         title: name,
         description,
-        royalty,
+        royalty: await ninstaContract.checkSumAddress(royalty),
         media: { path: job.attrs.data?.media, mimeType: fileType },
         royaltyPer,
         assetUri: job.attrs.data?.assetUri,
