@@ -47,7 +47,7 @@ AssetSchema.methods = {
   getUserAsset: async function (userId) {
     const Asset = mongoose.model('Asset')
     try {
-      return await Asset.find({ user: userId })
+      return await Asset.find({ user: userId }).sort({ createdAt: -1 })
     } catch (e) {
       throw e
     }
