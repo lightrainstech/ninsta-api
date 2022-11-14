@@ -45,7 +45,7 @@ module.exports = async function (fastify, opts) {
           royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
         royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
-        if (limit <= 3) {
+        if (limit > 0) {
           const fileName = `${Number(new Date())}-${file.filename}`
           fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
           if (Number(royaltyPer.value) >= 10000) {
