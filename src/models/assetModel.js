@@ -33,6 +33,9 @@ const AssetSchema = new mongoose.Schema(
     wallet: {
       type: String,
       default: '--'
+    },
+    contractAddress: {
+      type: String
     }
   },
   {
