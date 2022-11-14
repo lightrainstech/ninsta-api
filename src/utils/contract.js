@@ -80,7 +80,7 @@ const getLimit = async account => {
   try {
     const address = web3.utils.toChecksumAddress(account)
     let data = await ninstaContract.getFreeMinting(address)
-    return parseInt(data)
+    return { limit: parseInt(data[0]), isMature: data[1] }
   } catch (error) {
     throw error
   }

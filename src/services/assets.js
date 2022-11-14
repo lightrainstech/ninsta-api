@@ -41,11 +41,11 @@ module.exports = async function (fastify, opts) {
         } = req.body
         let file = await req.body.file
         const { userId } = req.user
-        let limit = await ninstaContract.getLimit(wallet.value),
+        let { limit, isMature } = await ninstaContract.getLimit(wallet.value),
           royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
         royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
-        if (limit > 0) {
+        if ((isMature && limit > 0) || !isMature) {
           const fileName = `${Number(new Date())}-${file.filename}`
           fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
           if (Number(royaltyPer.value) >= 10000) {
