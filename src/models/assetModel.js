@@ -24,8 +24,7 @@ const AssetSchema = new mongoose.Schema(
       default: false
     },
     tokenId: {
-      type: String,
-      unique: true
+      type: String
     },
     assetUri: {
       type: String,
@@ -42,26 +41,13 @@ const AssetSchema = new mongoose.Schema(
 )
 
 AssetSchema.methods = {
-  getUserById: async function (id) {
-    const User = mongoose.model('User')
-    let query = { _id: id }
-    const options = {
-      criteria: query
+  getUserAsset: async function (userId) {
+    const Asset = mongoose.model('Asset')
+    try {
+      return await Asset.find({ user: userId })
+    } catch (e) {
+      throw e
     }
-    return User.load(options)
-  },
-
-  resetOtp: async function (otp, phone, country) {
-    const User = mongoose.model('User')
-    return await User.findOneAndUpdate(
-      { phone: phone, country: country },
-      {
-        $set: {
-          otp: otp
-        }
-      },
-      { new: true }
-    )
   }
 }
 
