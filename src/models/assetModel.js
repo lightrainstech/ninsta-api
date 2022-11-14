@@ -48,6 +48,26 @@ AssetSchema.methods = {
     } catch (e) {
       throw e
     }
+  },
+  updateAsset: async function (args) {
+    const Asset = mongoose.model('Asset')
+    let { docId, userId, media, assetUri, tokenId } = args
+    try {
+      return await Asset.findOneAndUpdate(
+        { _id: docId, user: userId },
+        {
+          $set: {
+            media: media,
+            assetUri: assetUri,
+            tokenId: tokenId,
+            isMinted: true
+          }
+        },
+        { new: true }
+      )
+    } catch (e) {
+      throw e
+    }
   }
 }
 

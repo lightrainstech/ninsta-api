@@ -45,7 +45,7 @@ module.exports = async function (fastify, opts) {
           royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
         royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
-        if (1 <= 3) {
+        if (limit <= 3) {
           const fileName = `${Number(new Date())}-${file.filename}`
           fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
           if (Number(royaltyPer.value) >= 10000) {
@@ -61,7 +61,17 @@ module.exports = async function (fastify, opts) {
               message: 'Unable to upload file, please retry!'
             })
           } else {
+            let newAsset = await Asset.create({
+              user: userId,
+              title: title.values,
+              description: description.value,
+              royalty: await ninstaContract.checkSumAddress(royalty.value),
+              royaltyPer: royaltyPer.value,
+              wallet: await ninstaContract.checkSumAddress(wallet.value)
+            })
+
             let jobData = {
+                docId: newAsset._id,
                 name: title.value,
                 description: description.value,
                 fileName: fileName,

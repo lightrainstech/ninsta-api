@@ -16,6 +16,7 @@ module.exports = async function (agenda) {
   agenda.define('mintnft', async (job, done) => {
     try {
       const {
+        docId,
         name,
         description,
         fileName,
@@ -56,18 +57,16 @@ module.exports = async function (agenda) {
           job.attrs.data.tokenId = tokenId
         }
       }
-      let newAsset = await Asset.create({
-        user: userId,
-        title: name,
-        description,
-        royalty: await ninstaContract.checkSumAddress(royalty),
-        media: { path: job.attrs.data?.media, mimeType: fileType },
-        royaltyPer,
-        assetUri: job.attrs.data?.assetUri,
-        tokenId: job.attrs.data?.tokenId || tokenId,
-        wallet: await ninstaContract.checkSumAddress(wallet),
-        isMinted: true
-      })
+
+      console.log('docId', docId)
+      let assetModel = new Asset(),
+        update = await assetModel.updateAsset({
+          docId,
+          user: userId,
+          media: { path: job.attrs.data?.media, mimeType: fileType },
+          tokenId: job.attrs.data?.tokenId || tokenId,
+          isMinted: true
+        })
 
       console.log(`----------Data saved-------NINSTA-NFT`)
       job.remove()
