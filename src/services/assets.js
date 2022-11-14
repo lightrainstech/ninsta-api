@@ -103,7 +103,26 @@ module.exports = async function (fastify, opts) {
         })
       }
     }
-  )
+  ),
+    fastify.get('/', { schema: assetPayload.getAssetSchema }, async function (
+      req,
+      reply
+    ) {
+      const { userId } = req.user
+      try {
+        let assetModel = new Asset(),
+          assets = await assetModel.getUserAsset(userId)
+        reply.success({
+          message: 'Success',
+          data: assets
+        })
+      } catch (error) {
+        return reply.error({
+          message: `Failed to fetch assets: ${error}`
+        })
+      }
+      return reply
+    })
 }
 
 module.exports.autoPrefix = '/assets'

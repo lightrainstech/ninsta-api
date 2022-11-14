@@ -13,6 +13,11 @@ exports.assetSchema = {
   security: [{ Bearer: [] }]
 }
 
+exports.getAssetSchema = {
+  tags: ['Asset'],
+  summary: 'Get user assets',
+  security: [{ Bearer: [] }]
+}
 exports.uploadSchema = {
   tags: ['Asset'],
   summary: 'Add asset',
