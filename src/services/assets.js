@@ -67,7 +67,8 @@ module.exports = async function (fastify, opts) {
               description: description.value,
               royalty: await ninstaContract.checkSumAddress(royalty.value),
               royaltyPer: royaltyPer.value,
-              wallet: await ninstaContract.checkSumAddress(wallet.value)
+              wallet: await ninstaContract.checkSumAddress(wallet.value),
+              contractAddress: process.env.NINSTA_CONTRACT_ADDRESS
             })
 
             let jobData = {

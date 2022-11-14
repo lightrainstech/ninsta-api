@@ -57,8 +57,6 @@ module.exports = async function (agenda) {
           job.attrs.data.tokenId = tokenId
         }
       }
-
-      console.log('docId', docId)
       let assetModel = new Asset(),
         update = await assetModel.updateAsset({
           docId,
