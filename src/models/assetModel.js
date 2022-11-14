@@ -1,7 +1,7 @@
 'use strict'
 // External Dependencies
 const mongoose = require('mongoose')
-
+const { ObjectId } = mongoose.Types
 const AssetSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
@@ -54,10 +54,11 @@ AssetSchema.methods = {
   },
   updateAsset: async function (args) {
     const Asset = mongoose.model('Asset')
-    let { docId, userId, media, assetUri, tokenId } = args
+    let { docId, user, media, assetUri, tokenId } = args
+    console.log(args)
     try {
       return await Asset.findOneAndUpdate(
-        { _id: docId, user: userId },
+        { _id: docId, user: ObjectId(user) },
         {
           $set: {
             media: media,

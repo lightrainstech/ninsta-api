@@ -31,14 +31,8 @@ module.exports = async function (fastify, opts) {
     //{ schema: assetPayload.assetSchema },
     async (req, reply) => {
       try {
-        const {
-          title,
-          description,
-          wallet,
-          handle,
-          royalty,
-          royaltyPer
-        } = req.body
+        const { title, description, wallet, handle, royalty, royaltyPer } =
+          req.body
         let file = await req.body.file
         const { userId } = req.user
         let { limit, isMature } = await ninstaContract.getLimit(wallet.value),
@@ -63,7 +57,7 @@ module.exports = async function (fastify, opts) {
           } else {
             let newAsset = await Asset.create({
               user: userId,
-              title: title.values,
+              title: title.value,
               description: description.value,
               royalty: await ninstaContract.checkSumAddress(royalty.value),
               royaltyPer: royaltyPer.value,
@@ -115,25 +109,26 @@ module.exports = async function (fastify, opts) {
       }
     }
   ),
-    fastify.get('/', { schema: assetPayload.getAssetSchema }, async function (
-      req,
-      reply
-    ) {
-      const { userId } = req.user
-      try {
-        let assetModel = new Asset(),
-          assets = await assetModel.getUserAsset(userId)
-        reply.success({
-          message: 'Success',
-          data: assets
-        })
-      } catch (error) {
-        return reply.error({
-          message: `Failed to fetch assets: ${error}`
-        })
+    fastify.get(
+      '/',
+      { schema: assetPayload.getAssetSchema },
+      async function (req, reply) {
+        const { userId } = req.user
+        try {
+          let assetModel = new Asset(),
+            assets = await assetModel.getUserAsset(userId)
+          reply.success({
+            message: 'Success',
+            data: assets
+          })
+        } catch (error) {
+          return reply.error({
+            message: `Failed to fetch assets: ${error}`
+          })
+        }
+        return reply
       }
-      return reply
-    })
+    )
 }
 
 module.exports.autoPrefix = '/assets'
