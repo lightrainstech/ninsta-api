@@ -7,65 +7,68 @@ const userPayload = require('../payload/userPayload.js')
 const userModal = new User()
 
 module.exports = async function (fastify, opts) {
-  fastify.post('/signup', { schema: userPayload.otpSchema }, async function (
-    request,
-    reply
-  ) {
-    const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000
-    const { name, email, affCode } = request.body
-    let user = await userModal.getUserByEmail(email.trim().toLowerCase())
-    try {
-      if (user === null) {
-        user = await User.create({
-          name,
-          email: email.toLowerCase().trim(),
-          otp
-        })
-        const accessToken = fastify.jwt.sign(
-          {
-            userId: user._id,
-            isVerified: user.isVerified,
-            email: user.email,
-            affiliateCode: user.affiliateCode
-          },
-          { expiresIn: '7d' }
-        )
+  fastify.post(
+    '/signup',
+    { schema: userPayload.otpSchema },
+    async function (request, reply) {
+      const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000
+      const { name, email, affCode } = request.body
+      let user = await userModal.getUserByEmail(email.trim().toLowerCase())
+      try {
+        if (user === null) {
+          user = await User.create({
+            name,
+            email: email.toLowerCase().trim(),
+            otp
+          })
+          const accessToken = fastify.jwt.sign(
+            {
+              userId: user._id,
+              isVerified: user.isVerified,
+              email: user.email,
+              affiliateCode: user.affiliateCode
+            },
+            { expiresIn: '7d' }
+          )
 
-        reply.success({
-          message: 'Sign up successful, please verify your phone number.',
-          otp: otp,
-          accessToken,
-          affiliateCode: user.affiliateCode
-        })
-      } else {
-        const accessToken = fastify.jwt.sign(
-          {
-            userId: user._id,
-            isVerified: user.isVerified,
+          reply.success({
+            message: 'Sign up successful, please verify your phone number.',
+            otp: otp,
+            accessToken,
+            affiliateCode: user.affiliateCode,
+            expiresIn: new Date().setDate(new Date().getDate() + 7)
+          })
+        } else {
+          const accessToken = fastify.jwt.sign(
+            {
+              userId: user._id,
+              isVerified: user.isVerified,
+              email: user.email,
+              affiliateCode: user.affiliateCode
+            },
+            { expiresIn: '7d' }
+          )
+          reply.success({
+            message: 'Sign up successful, please verify your phone number.',
+            accessToken,
+            affiliateCode: user.affiliateCode,
             email: user.email,
-            affiliateCode: user.affiliateCode
-          },
-          { expiresIn: '7d' }
-        )
-        reply.success({
-          message: 'Sign up successful, please verify your phone number.',
-          accessToken,
-          affiliateCode: user.affiliateCode,
-          email: user.email
-        })
-      }
+            expiresIn: new Date().setDate(new Date().getDate() + 7)
+          })
+        }
 
-      if (affCode) {
-        Affiliate.create({
-          user: user._id,
-          affiliateCode: affCode
-        })
+        if (affCode) {
+          Affiliate.create({
+            user: user._id,
+            affiliateCode: affCode
+          })
+        }
+      } catch (error) {
+        console.log(error)
+        reply.error({ message: 'Unable to create, please retry!' })
       }
-    } catch (error) {
-      console.log(error)
-      reply.error({ message: 'Unable to create, please retry!' })
     }
-  }),
+  ),
     fastify.post(
       '/otpresend',
       { schema: userPayload.otpResendSchema },
