@@ -27,49 +27,62 @@ module.exports = async function (agenda) {
         handle,
         userId
       } = job.attrs.data
-      let tokenId
-      if (!job.attrs.data?.isMinted) {
-        if (!job.attrs.data?.isMediaUploaded) {
-          let media = await uploadImage(`./public/${fileName}`, name)
-          job.attrs.data.isMediaUploaded = true
-          job.attrs.data.media = media
-        }
-        if (!job.attrs.data?.isMetaUploaded) {
-          let jsonData = {
-              name,
-              description,
-              image: job.attrs.data.media
-            },
-            metaData = await uploadJson(jsonData),
-            assetUri = `https://ipfs.io/ipfs/${metaData}`
+      let { tokenId, assetUri } = job.attrs.data
 
-          job.attrs.data.isMetaUploaded = true
-          job.attrs.data.assetUri = assetUri
-          let mintResult = await ninstaContract.mintNFT(
-            wallet,
-            assetUri,
-            handle,
-            royalty,
-            royaltyPer
-          )
-          tokenId = parseInt(mintResult.tokenId)
-          job.attrs.data.isMinted = true
-          job.attrs.data.tokenId = tokenId
-        }
+      if (!job.attrs.data?.isMediaUploaded) {
+        let media = await uploadImage(`./public/${fileName}`, name)
+        job.attrs.data.isMediaUploaded = true
+        job.attrs.data.media = media
       }
+      if (!job.attrs.data?.isMetaUploaded) {
+        let jsonData = {
+            name,
+            description,
+            image: job.attrs.data.media
+          },
+          metaData = await uploadJson(jsonData)
+        assetUri = `https://ipfs.io/ipfs/${metaData}`
+
+        job.attrs.data.isMetaUploaded = true
+        job.attrs.data.assetUri = assetUri
+      }
+      if (!job.attrs.data?.isMinted) {
+        console.log(
+          '---------Minting-------',
+          wallet,
+          assetUri,
+          handle,
+          royalty,
+          royaltyPer
+        )
+        let mintResult = await ninstaContract.mintNFT(
+          wallet,
+          assetUri,
+          handle,
+          royalty,
+          royaltyPer
+        )
+        tokenId = parseInt(mintResult.tokenId)
+        job.attrs.data.isMinted = true
+        job.attrs.data.tokenId = tokenId
+      }
+      console.log('-------saving-------')
       let assetModel = new Asset(),
         update = await assetModel.updateAsset({
           docId,
           user: userId,
           media: { path: job.attrs.data?.media, mimeType: fileType },
           tokenId: job.attrs.data?.tokenId || tokenId,
+          assetUri: job.attrs.data?.assetUri,
           isMinted: true
         })
-
-      console.log(`----------Data saved-------NINSTA-NFT`)
+      console.log(`----------Data saved-------NINSTA-NFT----${tokenId}`)
       job.remove()
       done()
     } catch (e) {
+      job.attrs.nextRunAt = new Date(
+        new Date().setMinutes(new Date().getMinutes() + 5)
+      )
       throw e
       done()
     }
@@ -107,6 +120,7 @@ const uploadJson = async data => {
       }
     }
     let result = await pinata.pinJSONToIPFS(data, options)
+    console.log(`-------------Meta uploaded-----------`)
     return result?.IpfsHash
   } catch (e) {
     console.log(`----------failed to upload metadata-------`)
