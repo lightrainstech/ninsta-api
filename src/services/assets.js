@@ -210,7 +210,11 @@ module.exports = async function (fastify, opts) {
           const { docId, tokenId } = req.body,
             { userId } = req.user,
             assetModel = new Asset(),
-            update = await assetModel.updateAssetId({ docId, tokenId, userId })
+            update = await assetModel.updateAssetId({
+              docId,
+              tokenId,
+              user: userId
+            })
           return reply.success({
             message: 'NFT Id updated',
             data: update
