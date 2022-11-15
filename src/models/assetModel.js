@@ -24,7 +24,7 @@ const AssetSchema = new mongoose.Schema(
       default: false
     },
     tokenId: {
-      type: String
+      type: Number
     },
     assetUri: {
       type: String,
@@ -55,7 +55,6 @@ AssetSchema.methods = {
   updateAsset: async function (args) {
     const Asset = mongoose.model('Asset')
     let { docId, user, media, assetUri, tokenId } = args
-    console.log(args)
     try {
       return await Asset.findOneAndUpdate(
         { _id: docId, user: ObjectId(user) },
@@ -63,6 +62,24 @@ AssetSchema.methods = {
           $set: {
             media: media,
             assetUri: assetUri,
+            tokenId: tokenId,
+            isMinted: true
+          }
+        },
+        { new: true }
+      )
+    } catch (e) {
+      throw e
+    }
+  },
+  updateAssetId: async function (args) {
+    const Asset = mongoose.model('Asset')
+    let { docId, tokenId, user } = args
+    try {
+      return await Asset.findOneAndUpdate(
+        { _id: docId, user: ObjectId(user) },
+        {
+          $set: {
             tokenId: tokenId,
             isMinted: true
           }
