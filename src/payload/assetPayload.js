@@ -13,6 +13,15 @@ exports.assetSchema = {
   security: [{ Bearer: [] }]
 }
 
+exports.assetUpdateSchema = {
+  tags: ['Asset'],
+  summary: 'Update asset',
+  body: S.object()
+    .prop('docId', S.string().pattern('^[a-fA-F0-9]{24}$').required())
+    .prop('tokenId', S.number().minimum(0).required()),
+  security: [{ Bearer: [] }]
+}
+
 exports.getAssetSchema = {
   tags: ['Asset'],
   summary: 'Get user assets',

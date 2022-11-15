@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const Asset = mongoose.model('Asset')
 
 const ninstaContract = require('../utils/contract.js')
+const { uploadImage, uploadJson } = require('../utils')
 
 const pinata = new pinataSDK(
   process.env.PINATA_API_KEY,
@@ -40,21 +41,12 @@ module.exports = async function (agenda) {
             description,
             image: job.attrs.data.media
           },
-          metaData = await uploadJson(jsonData)
-        assetUri = `https://ipfs.io/ipfs/${metaData}`
+          assetUri = await uploadJson(jsonData)
 
         job.attrs.data.isMetaUploaded = true
         job.attrs.data.assetUri = assetUri
       }
       if (!job.attrs.data?.isMinted) {
-        console.log(
-          '---------Minting-------',
-          wallet,
-          assetUri,
-          handle,
-          royalty,
-          royaltyPer
-        )
         let mintResult = await ninstaContract.mintNFT(
           wallet,
           assetUri,
@@ -87,43 +79,4 @@ module.exports = async function (agenda) {
       done()
     }
   })
-}
-
-const uploadImage = async (filePath, name) => {
-  try {
-    console.log('----Uploading Media------')
-    let pinataStatus = await pinata.testAuthentication()
-    const readableStreamForFile = fs.createReadStream(filePath),
-      options = {
-        pinataMetadata: {
-          name: `image:${name}`
-        }
-      },
-      { IpfsHash } = await pinata.pinFileToIPFS(readableStreamForFile, options)
-    let imageUrl = `https://ipfs.io/ipfs/${IpfsHash}`
-    console.log(`-------------Media uploaded-----------`)
-    fs.unlinkSync(filePath)
-    return imageUrl
-  } catch (e) {
-    console.log(`----------failed to upload media-------`)
-    throw e
-  }
-}
-
-const uploadJson = async data => {
-  try {
-    console.log('----Uploading Meta data------')
-    let pinataStatus = await pinata.testAuthentication()
-    const options = {
-      pinataMetadata: {
-        name: data.name
-      }
-    }
-    let result = await pinata.pinJSONToIPFS(data, options)
-    console.log(`-------------Meta uploaded-----------`)
-    return result?.IpfsHash
-  } catch (e) {
-    console.log(`----------failed to upload metadata-------`)
-    throw e
-  }
 }
