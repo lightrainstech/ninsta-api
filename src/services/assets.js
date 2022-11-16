@@ -140,59 +140,49 @@ module.exports = async function (fastify, opts) {
             req.body
           let file = await req.body.file
           const { userId } = req.user
-          let { limit, isMature } = await ninstaContract.getLimit(wallet.value),
-            royaltyWallet =
-              royalty.value || '0x0000000000000000000000000000000000000000'
+          let royaltyWallet =
+            royalty.value || '0x0000000000000000000000000000000000000000'
           royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
-          if ((isMature && limit > 0) || !isMature) {
-            const fileName = `${Number(new Date())}-${file.filename}`
-            fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
-            if (Number(royaltyPer.value) >= 10000) {
-              return reply.error({
-                message:
-                  'Royalty percentage limit exceedes. Must be less than 10000'
-              })
-            }
-
-            if (file.file.truncated) {
-              fs.rmSync(`./public/${fileName}`)
-              return reply.error({
-                message: 'Unable to upload file, please retry!'
-              })
-            } else {
-              let image = await uploadImage(
-                  `./public/${fileName}`,
-                  title.value
-                ),
-                data = {
-                  name: title.value,
-                  description: description.value,
-                  image: image
-                },
-                assetUri = await uploadJson(data)
-              let newAsset = await Asset.create({
-                user: userId,
-                title: title.value,
-                description: description.value,
-                royalty: await ninstaContract.checkSumAddress(royalty.value),
-                royaltyPer: royaltyPer.value,
-                wallet: await ninstaContract.checkSumAddress(wallet.value),
-                contractAddress: process.env.NINSTA_CONTRACT_ADDRESS,
-                media: {
-                  path: image,
-                  mimeType: file.mimetype
-                },
-                assetUri
-              })
-
-              return reply.success({
-                message: 'Your NFT is minting',
-                data: newAsset
-              })
-            }
-          } else {
+          const fileName = `${Number(new Date())}-${file.filename}`
+          fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
+          if (Number(royaltyPer.value) >= 10000) {
             return reply.error({
-              message: 'You reached maximum limit for minting free NFTs'
+              message:
+                'Royalty percentage limit exceeds. Must be less than 10000'
+            })
+          }
+
+          if (file.file.truncated) {
+            fs.rmSync(`./public/${fileName}`)
+            return reply.error({
+              message: 'Unable to upload file, please retry!'
+            })
+          } else {
+            let image = await uploadImage(`./public/${fileName}`, title.value),
+              data = {
+                name: title.value,
+                description: description.value,
+                image: image
+              },
+              assetUri = await uploadJson(data)
+            let newAsset = await Asset.create({
+              user: userId,
+              title: title.value,
+              description: description.value,
+              royalty: await ninstaContract.checkSumAddress(royalty.value),
+              royaltyPer: royaltyPer.value,
+              wallet: await ninstaContract.checkSumAddress(wallet.value),
+              contractAddress: process.env.NINSTA_CONTRACT_ADDRESS,
+              media: {
+                path: image,
+                mimeType: file.mimetype
+              },
+              assetUri
+            })
+
+            return reply.success({
+              message: 'Your NFT is minting',
+              data: newAsset
             })
           }
         } catch (error) {
