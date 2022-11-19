@@ -27,6 +27,10 @@ const AssetSchema = new mongoose.Schema(
       enum: ['free', 'matic', 'external'],
       default: 'free'
     },
+    isPaid: {
+      type: Boolean,
+      default: false
+    },
     tokenId: {
       type: Number
     },
