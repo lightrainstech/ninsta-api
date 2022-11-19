@@ -23,6 +23,10 @@ const AssetSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    mintType: {
+      enum: ['free', 'matic', 'external'],
+      default: 'free'
+    },
     tokenId: {
       type: Number
     },

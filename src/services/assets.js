@@ -136,8 +136,15 @@ module.exports = async function (fastify, opts) {
       //{ schema: assetPayload.assetSchema },
       async (req, reply) => {
         try {
-          const { title, description, wallet, handle, royalty, royaltyPer } =
-            req.body
+          const {
+            title,
+            description,
+            wallet,
+            handle,
+            royalty,
+            royaltyPer,
+            mintType = 'matic'
+          } = req.body
           let file = await req.body.file
           const { userId } = req.user
           let royaltyWallet =
@@ -177,6 +184,7 @@ module.exports = async function (fastify, opts) {
                 path: image,
                 mimeType: file.mimetype
               },
+              mintType,
               assetUri
             })
 
