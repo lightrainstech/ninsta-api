@@ -24,6 +24,7 @@ const AssetSchema = new mongoose.Schema(
       default: false
     },
     mintType: {
+      type: String,
       enum: ['free', 'matic', 'external'],
       default: 'free'
     },
