@@ -204,7 +204,6 @@ module.exports = async function (fastify, opts) {
       '/',
       { schema: assetPayload.assetUpdateSchema },
       async (req, reply) => {
-        let update
         try {
           const { docId, tokenId } = req.body,
             { userId } = req.user,
