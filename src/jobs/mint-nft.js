@@ -73,7 +73,7 @@ module.exports = async function (agenda) {
       done()
     } catch (e) {
       job.attrs.nextRunAt = new Date(
-        new Date().setMinutes(new Date().getMinutes() + 5)
+        new Date().setMinutes(new Date().getMinutes() + 0.5)
       )
       throw e
       done()
