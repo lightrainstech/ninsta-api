@@ -11,6 +11,7 @@ const axios = require('axios')
 const mime = require('mime')
 
 const Asset = require('../models/assetModel.js')
+const Affiliate = require('../models/affiliateModel.js')
 const assetPayload = require('../payload/assetPayload.js')
 
 const ninstaContract = require('../utils/contract.js')
@@ -18,6 +19,9 @@ const ninstaContract = require('../utils/contract.js')
 const assetModal = new Asset()
 const { uploadImage, uploadJson } = require('../utils')
 const assetModel = require('../models/assetModel.js')
+const affiliateModel = require('../models/affiliateModel.js')
+
+const EXTRA_MINT = process.env.EXTRA_MINT || 5
 
 module.exports = async function (fastify, opts) {
   fastify.addHook('onRequest', async (request, reply) => {
@@ -36,15 +40,17 @@ module.exports = async function (fastify, opts) {
         const { title, description, wallet, handle, royalty, royaltyPer } =
           req.body
         let file = await req.body.file
-        const { userId } = req.user
+        const { userId } = req.user,
+          affiliateModel = new Affiliate()
         let { limit, isMature } = await ninstaContract.getLimit(wallet.value),
           royaltyWallet =
-            royalty.value || '0x0000000000000000000000000000000000000000'
-        royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
+            royalty?.value || '0x0000000000000000000000000000000000000000'
+        royaltyWallet = await ninstaContract.checkSumAddress(royaltyWallet)
+        let checkSumWallet = await ninstaContract.checkSumAddress(wallet.value)
         if ((isMature && limit > 0) || !isMature) {
           const fileName = `${Number(new Date())}-${file.filename}`
           fs.writeFileSync(`./public/${fileName}`, await file.toBuffer())
-          if (Number(royaltyPer.value) >= 10000) {
+          if (Number(royaltyPer?.value || 0) >= 10000) {
             return reply.error({
               message:
                 'Royalty percentage limit exceedes. Must be less than 10000'
@@ -57,13 +63,26 @@ module.exports = async function (fastify, opts) {
               message: 'Unable to upload file, please retry!'
             })
           } else {
+            let affiliateData = await affiliateModel.getDataByuserId(userId)
+            if (affiliateData) {
+              let isExtraMint = affiliateData?.isUserMintProcessed || false
+              if (!isExtraMint) {
+                let result = await ninstaContract.updateFreeMintLimit(
+                  checkSumWallet,
+                  Number(EXTRA_MINT)
+                )
+                if (result) {
+                  await affiliateModel.updateUserMintUpgrade(userId)
+                }
+              }
+            }
             let newAsset = await Asset.create({
               user: userId,
-              title: title.value,
-              description: description.value,
-              royalty: await ninstaContract.checkSumAddress(royalty.value),
-              royaltyPer: royaltyPer.value,
-              wallet: await ninstaContract.checkSumAddress(wallet.value),
+              title: title?.value || '',
+              description: description?.value || '',
+              royalty: royaltyWallet,
+              royaltyPer: royaltyPer?.value || 0,
+              wallet: checkSumWallet,
               contractAddress: process.env.NINSTA_CONTRACT_ADDRESS
             })
 
@@ -74,9 +93,9 @@ module.exports = async function (fastify, opts) {
                 fileName: fileName,
                 fileType: file.mimetype,
                 royalty: royaltyWallet,
-                royaltyPer: Number(royaltyPer.value) || 0,
+                royaltyPer: Number(royaltyPer?.value) || 0,
                 wallet: wallet.value,
-                handle: handle.value,
+                handle: handle?.value,
                 userId,
                 isMinted: false,
                 isMediaUploaded: false,
@@ -92,8 +111,8 @@ module.exports = async function (fastify, opts) {
               data: {
                 name: title.value,
                 description: description.value,
-                royalty: royalty.value || '',
-                royaltyPer: royaltyPer.value || 0,
+                royalty: royaltyWallet || '',
+                royaltyPer: royaltyPer?.value || 0,
                 wallet: wallet.value,
                 handle: handle.value
               }
@@ -146,7 +165,9 @@ module.exports = async function (fastify, opts) {
             mintType = 'matic'
           } = req.body
           let file = await req.body.file
-          const { userId } = req.user
+          const { userId } = req.user,
+            affiliateModel = new Affiliate()
+
           let royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
           royaltyWallet = await ninstaContract.checkSumAddress(royalty.value)
@@ -172,6 +193,7 @@ module.exports = async function (fastify, opts) {
                 image: image
               },
               assetUri = await uploadJson(data)
+
             let newAsset = await Asset.create({
               user: userId,
               title: title.value,
@@ -187,7 +209,19 @@ module.exports = async function (fastify, opts) {
               mintType,
               assetUri
             })
-
+            let affiliateData = await affiliateModel.getDataByuserId(userId)
+            if (affiliateData) {
+              let isExtraMint = affiliateData?.isUserMintProcessed || false
+              if (!isExtraMint) {
+                let result = await ninstaContract.updateFreeMintLimit(
+                  checkSumWallet,
+                  Number(EXTRA_MINT)
+                )
+                if (result) {
+                  await affiliateModel.updateUserMintUpgrade(userId)
+                }
+              }
+            }
             return reply.success({
               message: 'Your NFT is minting',
               data: newAsset
