@@ -38,6 +38,12 @@ module.exports = async function (fastify, opts) {
             affiliateCode: user.affiliateCode,
             expiresIn: new Date().setDate(new Date().getDate() + 7)
           })
+          if (affCode) {
+            Affiliate.create({
+              user: user._id,
+              affiliateCode: affCode
+            })
+          }
         } else {
           const accessToken = fastify.jwt.sign(
             {
@@ -54,13 +60,6 @@ module.exports = async function (fastify, opts) {
             affiliateCode: user.affiliateCode,
             email: user.email,
             expiresIn: new Date().setDate(new Date().getDate() + 7)
-          })
-        }
-
-        if (affCode) {
-          Affiliate.create({
-            user: user._id,
-            affiliateCode: affCode
           })
         }
       } catch (error) {
