@@ -86,6 +86,27 @@ const getLimit = async account => {
   }
 }
 
+const updateFreeMintLimit = (toAddress, limit) =>
+  new Promise((resolve, reject) =>
+    calculateGas()
+      .then(feeData =>
+        ninstaContract
+          .setCounter(toAddress, limit, {
+            gasPrice: feeData
+          })
+          .then(tx => {
+            console.log('Waiting for confirmation....')
+            return tx.wait()
+          })
+          .then(receipt => {
+            console.log(`---------Limit updated---------`)
+            return resolve(receipt)
+          })
+          .catch(e => reject(e))
+      )
+      .catch(e => reject(e))
+  )
+
 const checkSumAddress = async account => {
   return web3.utils.toChecksumAddress(account)
 }
@@ -93,5 +114,6 @@ const checkSumAddress = async account => {
 module.exports = {
   mintNFT,
   getLimit,
-  checkSumAddress
+  checkSumAddress,
+  updateFreeMintLimit
 }
