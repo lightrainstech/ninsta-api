@@ -45,6 +45,7 @@ module.exports = async function (fastify, opts) {
         let { limit, isMature } = await ninstaContract.getLimit(wallet.value),
           royaltyWallet =
             royalty?.value || '0x0000000000000000000000000000000000000000'
+        console.log(limit, isMature)
         royaltyWallet = await ninstaContract.checkSumAddress(royaltyWallet)
         let checkSumWallet = await ninstaContract.checkSumAddress(wallet.value)
         if ((isMature && limit > 0) || !isMature) {
@@ -165,8 +166,7 @@ module.exports = async function (fastify, opts) {
             mintType = 'matic'
           } = req.body
           let file = await req.body.file
-          const { userId } = req.user,
-            affiliateModel = new Affiliate()
+          const { userId } = req.user
 
           let royaltyWallet =
             royalty.value || '0x0000000000000000000000000000000000000000'
@@ -209,19 +209,6 @@ module.exports = async function (fastify, opts) {
               mintType,
               assetUri
             })
-            let affiliateData = await affiliateModel.getDataByuserId(userId)
-            if (affiliateData) {
-              let isExtraMint = affiliateData?.isUserMintProcessed || false
-              if (!isExtraMint) {
-                let result = await ninstaContract.updateFreeMintLimit(
-                  checkSumWallet,
-                  Number(EXTRA_MINT)
-                )
-                if (result) {
-                  await affiliateModel.updateUserMintUpgrade(userId)
-                }
-              }
-            }
             return reply.success({
               message: 'Your NFT is minting',
               data: newAsset

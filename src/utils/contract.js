@@ -91,7 +91,7 @@ const updateFreeMintLimit = (toAddress, limit) =>
     calculateGas()
       .then(feeData =>
         ninstaContract
-          .setCounter(toAddress, limit, {
+          .setFreeMinting(toAddress, limit, {
             gasPrice: feeData
           })
           .then(tx => {
