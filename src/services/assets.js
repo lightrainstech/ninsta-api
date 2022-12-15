@@ -68,13 +68,15 @@ module.exports = async function (fastify, opts) {
             if (affiliateData) {
               let isExtraMint = affiliateData?.isUserMintProcessed || false
               if (!isExtraMint) {
-                let result = await ninstaContract.updateFreeMintLimit(
-                  checkSumWallet,
-                  Number(EXTRA_MINT)
-                )
-                if (result) {
-                  await affiliateModel.updateUserMintUpgrade(userId)
+                console.log('here')
+                let jobData = {
+                  wallet: checkSumWallet,
+                  user: userId
                 }
+                let job = fastify.agenda.create('upgrade-freemint', jobData)
+                job.unique({ user: userId })
+                job.schedule('now')
+                await job.save()
               }
             }
             let newAsset = await Asset.create({
