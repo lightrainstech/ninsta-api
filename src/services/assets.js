@@ -68,7 +68,6 @@ module.exports = async function (fastify, opts) {
             if (affiliateData) {
               let isExtraMint = affiliateData?.isUserMintProcessed || false
               if (!isExtraMint) {
-                console.log('here')
                 let jobData = {
                   wallet: checkSumWallet,
                   user: userId
