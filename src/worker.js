@@ -4,6 +4,7 @@ const Agenda = require('agenda')
 const MongoClient = require('mongodb').MongoClient
 const mongoose = require('mongoose')
 require('./models/assetModel.js')
+require('./models/affiliateModel.js')
 
 const agenda = new Agenda({ lockLimit: 1, defaultLockLimit: 0 })
 // When mongoose is connected to MongoDB

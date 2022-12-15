@@ -1,6 +1,7 @@
 'use strict'
 // External Dependencies
 const mongoose = require('mongoose')
+const { ObjectId } = mongoose.Types
 
 const AffiliateSchema = new mongoose.Schema(
   {
@@ -38,8 +39,8 @@ AffiliateSchema.methods = {
   },
   updateUserMintUpgrade: async function (user) {
     const Affiliate = mongoose.model('Affiliate')
-    return Affiliate.findOneAndUpdate(
-      { user },
+    return await Affiliate.findOneAndUpdate(
+      { user: ObjectId(user) },
       { $set: { isUserMintProcessed: true } },
       { new: true }
     )
