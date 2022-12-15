@@ -21,8 +21,6 @@ const { uploadImage, uploadJson } = require('../utils')
 const assetModel = require('../models/assetModel.js')
 const affiliateModel = require('../models/affiliateModel.js')
 
-const EXTRA_MINT = process.env.EXTRA_MINT || 1
-
 module.exports = async function (fastify, opts) {
   fastify.addHook('onRequest', async (request, reply) => {
     try {
