@@ -10,22 +10,30 @@ const EXTRA_MINT = process.env.EXTRA_MINT || 1
 module.exports = async function (agenda) {
   agenda.define('upgrade-freemint', async (job, done) => {
     try {
-      const { wallet, userId } = job.attrs.data,
+      let isMinted = job.attrs.data?.isMinted || false
+      const { wallet, user } = job.attrs.data,
         affiliateModel = new Affiliate()
-      let result = await ninstaContract.updateFreeMintLimit(
-        wallet,
-        Number(EXTRA_MINT)
-      )
-      if (result) {
-        await affiliateModel.updateUserMintUpgrade(userId)
+      if (!isMinted) {
+        let result = await ninstaContract.updateFreeMintLimit(
+          wallet,
+          Number(EXTRA_MINT)
+        )
+        if (result) {
+          job.attrs.data.isMinted = true
+          isMinted = true
+        }
       }
+      if (isMinted) {
+        await affiliateModel.updateUserMintUpgrade(user)
+      }
+      console.log('------done-----')
       job.remove()
       done()
     } catch (e) {
       job.attrs.nextRunAt = new Date(
         new Date().setMinutes(new Date().getMinutes() + 0.1)
       )
-      throw e
+      console.log(e)
       done()
     }
   })
